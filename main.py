@@ -39,8 +39,8 @@ def createNew():
         data = itemsch.load(requestData)
         stores.append(data)
         return stores
-    except ValidationError:
-        return jsonify(ValidationError)
+    except ValidationError as err:
+        return jsonify(err.messages)
 
 @app.delete("/delete/<int:id>")
 def deleteUnit(id):
