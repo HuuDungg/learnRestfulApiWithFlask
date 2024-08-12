@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from model import db, Item, Store
-
+from schemas import ItemSchema, StoreSchema
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345678@localhost/train06'
 
@@ -19,16 +19,9 @@ def index():
 def getAllItems():
     items = Item.query.all()
     # Chuyển đổi đối tượng Item thành danh sách các dictionary
-    items_list = [
-        {
-        'id': item.id,
-         'name': item.name, 
-         'price': item.price, 
-         'store_id': item.store_id
-         }
-           for item in items
-    ]
-    return jsonify(items_list)
+    item_Schemas = ItemSchema(many=True)
+
+    return jsonify(item_Schemas.dump(items))
 
 
 @app.get("/getById/<int:id>")
@@ -40,14 +33,10 @@ def getById(id):
                 'message': "not found"
             }
         )
-    item_dict = {
-        "id": item.id,
-        "name": item.name,
-        "price": item.price,
-        "store_id": item.store_id
-    }
+    
+    item_schemas = ItemSchema()
 
-    return jsonify(item_dict)
+    return jsonify(item_schemas.dump(item))
 
 
 if __name__ == "__main__":
