@@ -42,6 +42,13 @@ def createNew(name):
     stores.append(newStore)
     return stores
 
+@app.delete("/delete/<int:id>")
+def deleteUnit(id):
+    check = stores.remove(stores[id])
+    if check:
+        return jsonify("remove successfuly")
+    else:
+        return jsonify("some thing went wrong")
 
 if __name__ == "__main__":
     app.run(debug=True, host='127.0.0.1', port=5000)
