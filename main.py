@@ -63,6 +63,16 @@ def add_item():
     result = item_schema.dump(new_item)
     return jsonify(result), 201
 
+@app.delete("/delete/<int:id>")
+def deleteOne(id):
+    item = Item.query.get(id)
+    if not item:
+        return jsonify({'message': 'Item not found'}), 404
+    db.session.delete(item)
+    db.session.commit()
+    return jsonify({
+        "message": "delete succesfully"
+    })
 
 if __name__ == "__main__":
     with app.app_context():
