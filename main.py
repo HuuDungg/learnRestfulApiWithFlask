@@ -74,6 +74,30 @@ def deleteOne(id):
         "message": "delete succesfully"
     })
 
+@app.patch("/update/<int:id>")
+def updateById(id):
+    item = Item.query.get(id)
+
+    item_schema = ItemSchema()
+    
+    data = item_schema.load(request.get_json())
+
+    try:
+        
+        # Cập nhật thông tin đối tượng
+        item.name = data['name']
+        item.price = data['price']
+        item.store_id = data['store_id']
+
+        db.session.commit()
+        # Serialize đối tượng đã cập nhật và trả về
+        result = item_schema.dump(item)
+        return jsonify(result), 200
+    except ValidationError as err:
+        return jsonify({
+            "message": f"erorr: {err}"
+        }), 404
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
