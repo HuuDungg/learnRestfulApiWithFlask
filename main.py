@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
-
+from schemas import ItemSchema
+from marshmallow import ValidationError
 app = Flask(__name__)
 
 stores = [
@@ -30,17 +31,16 @@ stores = [
 def getMyItems():
     return jsonify(stores)
 
-@app.post("/createItem/<string:name>")
-def createNew(name):
-    requestData = request.get_json()
-    newStore = {
-        "name": requestData["name"],
-        "items": name
-    }
-    if not newStore:
-        return jsonify(f"no data input {name}")
-    stores.append(newStore)
-    return stores
+@app.post("/createItem")
+def createNew():
+    try:
+        requestData = request.get_json()
+        itemsch = ItemSchema()
+        data = itemsch.load(requestData)
+        stores.append(data)
+        return stores
+    except ValidationError:
+        return jsonify(ValidationError)
 
 @app.delete("/delete/<int:id>")
 def deleteUnit(id):
