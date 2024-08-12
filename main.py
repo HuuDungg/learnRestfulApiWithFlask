@@ -15,7 +15,7 @@ def index():
     except Exception as e:
         return f"Connection failed: {e}"
 
-@app.route("/getAllItems", methods=['GET'])
+@app.get("/getAllItems")
 def getAllItems():
     items = Item.query.all()
     # Chuyển đổi đối tượng Item thành danh sách các dictionary
@@ -29,6 +29,26 @@ def getAllItems():
            for item in items
     ]
     return jsonify(items_list)
+
+
+@app.get("/getById/<int:id>")
+def getById(id):
+    item = Item.query.get(id)
+    if item is None:
+        return jsonify(
+            {
+                'message': "not found"
+            }
+        )
+    item_dict = {
+        "id": item.id,
+        "name": item.name,
+        "price": item.price,
+        "store_id": item.store_id
+    }
+
+    return jsonify(item_dict)
+
 
 if __name__ == "__main__":
     with app.app_context():
