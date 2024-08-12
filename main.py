@@ -3,30 +3,6 @@ from schemas import ItemSchema
 from marshmallow import ValidationError
 app = Flask(__name__)
 
-stores = [
-    {
-        "name": "Huu Dung Tran",
-        "items": [
-            {
-                "name": "bread",
-                "price": 342
-            },
-            {
-                "name": "juice",
-                "price": 6456
-            },
-            {
-                "name": "saucess",
-                "price": 765
-            },
-            {
-                "name": "cream",
-                "price": 765
-            }
-        ]
-    }
-]
-
 @app.get("/getItems")
 def getMyItems():
     return jsonify(stores)
