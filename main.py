@@ -1,30 +1,17 @@
-from flask import Flask, request, jsonify
-from schemas import ItemSchema
-from marshmallow import ValidationError
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345678@localhost/train06'
+db = SQLAlchemy(app)
 
-@app.get("/getItems")
-def getMyItems():
-    return jsonify(stores)
-
-@app.post("/createItem")
-def createNew():
+@app.route('/')
+def index():
     try:
-        requestData = request.get_json()
-        itemsch = ItemSchema()
-        data = itemsch.load(requestData)
-        stores.append(data)
-        return stores
-    except ValidationError as err:
-        return jsonify(err.messages)
-
-@app.delete("/delete/<int:id>")
-def deleteUnit(id):
-    check = stores.remove(stores[id])
-    if check:
-        return jsonify("remove successfuly")
-    else:
-        return jsonify("some thing went wrong")
+        db.engine.connect()
+        return "Connection successful"
+    except Exception as e:
+        return f"Connection failed: {e}"
 
 if __name__ == "__main__":
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    app.run(debug=True)
