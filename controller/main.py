@@ -126,7 +126,20 @@ def register():
     try:
         data = request.get_json()
         userSchema = UserSchema()
-        return jsonify(userSchema.load(data))
+        
+        validData = userSchema.load(data)
+
+        user = User(**validData)
+        user.password = bcrypt.generate_password_hash(user.password)
+        user.id_role = 2
+        user.is_activate = True
+        
+        try:
+            db.session.add(user)
+            db.session.commit()
+            return jsonify(f"create success")
+        except Exception as e:
+            return jsonify(err)
     except ValidationError as err:
         return jsonify(err.messages)
 
