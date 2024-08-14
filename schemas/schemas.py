@@ -23,3 +23,5 @@ class RoleSchema(Schema):
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
     is_active = fields.Bool(required=True, default=True)
+
+

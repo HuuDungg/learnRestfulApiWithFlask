@@ -26,4 +26,6 @@ class User(db.Model):
     sdt = db.Column(db.String(80), nullable=False)
     id_role = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
 
+
+
     
