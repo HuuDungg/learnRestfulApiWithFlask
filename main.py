@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
-from model import db, Item, Store
-from schemas import ItemSchema, StoreSchema
+from model import db, Item, Store, Role, User
+from schemas import ItemSchema, StoreSchema, UserSchema, RoleSchema
 from marshmallow import ValidationError
 app = Flask(__name__)
 
@@ -97,6 +97,14 @@ def updateById(id):
         return jsonify({
             "message": f"erorr: {err}"
         }), 404
+
+
+@app.get("/getAllUser")
+def getAllUser():
+    data = User.query.all()
+    userSchema = UserSchema(many=True)
+    return jsonify(userSchema.dump(data))
+
 
 if __name__ == "__main__":
     with app.app_context():
