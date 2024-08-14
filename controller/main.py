@@ -1,3 +1,4 @@
+from functools import wraps
 import sys
 import os
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
@@ -17,6 +18,24 @@ db.init_app(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
+def role_required(required_role):
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            # Get the current user's identity from JWT
+            current_user = get_jwt_identity()
+            
+            # Check if 'role' key exists in the identity
+            if current_user is None or 'role' not in current_user:
+                return jsonify({'message': 'Token is missing or invalid'}), 401
+            
+            # Check if the user's role matches the required role
+            if current_user['role'] != required_role:
+                return jsonify({'message': 'Access denied'}), 403
+            
+            return fn(*args, **kwargs)
+        return wrapper
+    return decorator
 
 @app.route('/')
 def index():
@@ -27,6 +46,7 @@ def index():
         return f"Connection failed: {e}"
 
 @app.get("/getAllItems")
+@role_required("2")
 def getAllItems():
     items = Item.query.all()
     # Chuyển đổi đối tượng Item thành danh sách các dictionary
@@ -153,7 +173,6 @@ def register():
             return jsonify(err)
     except ValidationError as err:
         return jsonify(err.messages)
-
 
 @app.before_request
 def require_jwt_for_all_requests():
