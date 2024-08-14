@@ -4,3 +4,5 @@ pymysql==1.5.2
 cryptography==39.0.1
 marshmallow==3.15.0
 marshmallow-sqlalchemy==0.26.1
+flask-bcrypt
+Flask-JWT-Extended

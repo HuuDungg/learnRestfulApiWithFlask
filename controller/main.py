@@ -1,13 +1,22 @@
+import sys
+import os
+from flask_jwt_extended import JWTManager
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from entities.model import db, Item, Store, Role, User
-from schemas.schemas import ItemSchema, StoreSchema, UserSchema, RoleSchema
+from schemas.schemas import ItemSchema, StoreSchema, UserSchema, LoginSchema
 from marshmallow import ValidationError
+from flask_bcrypt import Bcrypt
+from config.config import Config 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345678@localhost/train06'
+app.config.from_object(Config)
 
 db.init_app(app)
+bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
+
 
 @app.route('/')
 def index():
@@ -104,6 +113,22 @@ def getAllUser():
     data = User.query.all()
     userSchema = UserSchema(many=True)
     return jsonify(userSchema.dump(data))
+
+@app.post("/login")
+def login():
+    data = request.get_json()
+    loginSchema = LoginSchema()
+    dataLogin = loginSchema.load(data)
+    return jsonify(dataLogin)
+
+@app.post("/register")
+def register():
+    try:
+        data = request.get_json()
+        userSchema = UserSchema()
+        return jsonify(userSchema.load(data))
+    except ValidationError as err:
+        return jsonify(err.messages)
 
 
 if __name__ == "__main__":

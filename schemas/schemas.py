@@ -15,13 +15,15 @@ class UserSchema(Schema):
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
     password = fields.Str(required=True)
-    std = fields.Str(required=True)
-    is_active = fields.Bool(required=True, default=True)
-    id_role = fields.Int(required=True)
+    sdt = fields.Str(required=True)
+    is_active = fields.Bool(required=False, default=True)
+    id_role = fields.Int(required=False, default=2)
 
 class RoleSchema(Schema):
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
     is_active = fields.Bool(required=True, default=True)
 
-
+class LoginSchema(Schema):
+    sdt = fields.Str(required=True)
+    password = fields.Str(required=True)
