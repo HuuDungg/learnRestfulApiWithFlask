@@ -1,6 +1,6 @@
 import sys
 import os
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
@@ -119,7 +119,18 @@ def login():
     data = request.get_json()
     loginSchema = LoginSchema()
     dataLogin = loginSchema.load(data)
-    return jsonify(dataLogin)
+
+    user = User.query.filter_by(sdt=dataLogin["sdt"]).first()
+    if user is None:
+        return jsonify({"message": "username or password is valid"})
+    # Kiểm tra mật khẩu
+    if user and bcrypt.check_password_hash(user.password, dataLogin["password"]):
+        # Tạo token với thông tin người dùng và vai trò
+        access_token = create_access_token(identity={'id': user.id, 'role': user.id_role})
+        return jsonify({'access_token': access_token}), 200
+    else:
+        return jsonify({'message': 'Invalid credentials'}), 401
+
 
 @app.post("/register")
 def register():

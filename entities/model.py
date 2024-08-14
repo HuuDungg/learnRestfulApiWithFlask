@@ -25,6 +25,7 @@ class User(db.Model):
     password = db.Column(db.String(80), nullable=False)
     sdt = db.Column(db.String(80), nullable=False)
     id_role = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
+    
 
 
 
