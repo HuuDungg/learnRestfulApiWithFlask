@@ -1,6 +1,6 @@
 import sys
 import os
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
@@ -153,6 +153,12 @@ def register():
             return jsonify(err)
     except ValidationError as err:
         return jsonify(err.messages)
+
+
+@app.before_request
+def require_jwt_for_all_requests():
+    if request.endpoint != 'login':  # Ngoại trừ route đăng nhập
+        verify_jwt_in_request()
 
 
 if __name__ == "__main__":
