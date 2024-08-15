@@ -1,6 +1,8 @@
 from functools import wraps
 import sys
 import os
+
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from flask import Flask, jsonify, request
@@ -11,7 +13,7 @@ from marshmallow import ValidationError
 from flask_bcrypt import Bcrypt
 from config.config import Config 
 app = Flask(__name__)
-
+CORS(app)
 app.config.from_object(Config)
 
 db.init_app(app)
@@ -46,7 +48,8 @@ def index():
         return f"Connection failed: {e}"
 
 @app.get("/getAllItems")
-@role_required("2")
+@jwt_required()
+@role_required(2)
 def getAllItems():
     items = Item.query.all()
     # Chuyển đổi đối tượng Item thành danh sách các dictionary
@@ -129,12 +132,19 @@ def updateById(id):
 
 
 @app.get("/getAllUser")
-@jwt_required()
-@role_required(2)
 def getAllUser():
     data = User.query.all()
     userSchema = UserSchema(many=True)
-    return jsonify(userSchema.dump(data))
+    return jsonify({"listUser": userSchema.dump(data)})
+@app.delete("/deleteUser/<int:id>")
+def deleteUser(id):
+    try:
+        user = User.query.get(id)
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": "delete succesfully"}), 200
+    except ValidationError as err:
+        return jsonify({"message": f"erorr: {err}"})
 
 @app.post("/login")
 def login():
