@@ -129,6 +129,8 @@ def updateById(id):
 
 
 @app.get("/getAllUser")
+@jwt_required()
+@role_required(2)
 def getAllUser():
     data = User.query.all()
     userSchema = UserSchema(many=True)
@@ -170,14 +172,10 @@ def register():
             db.session.commit()
             return jsonify(f"create success")
         except Exception as e:
-            return jsonify(err)
+            return jsonify(e)
     except ValidationError as err:
         return jsonify(err.messages)
 
-@app.before_request
-def require_jwt_for_all_requests():
-    if request.endpoint != 'login':  # Ngoại trừ route đăng nhập
-        verify_jwt_in_request()
 
 
 if __name__ == "__main__":
